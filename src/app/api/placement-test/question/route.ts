@@ -28,8 +28,14 @@ export async function POST(request: Request) {
       { status: 404 }
     );
   }
-
-  const { score, correctAnswer, ...questionData } = nextQuestion;
+  
+  const questionData = {
+    questionId: nextQuestion.questionId,
+    difficulty: nextQuestion.difficulty,
+    description: nextQuestion.description,
+    question: nextQuestion.question,
+    options: nextQuestion.options,
+}
 
   return NextResponse.json(questionData);
 }

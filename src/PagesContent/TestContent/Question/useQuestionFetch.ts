@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { useSearchParams, useRouter, useParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { useFormContext } from 'react-hook-form';
@@ -38,11 +38,11 @@ export function useQuestionFetch() {
 
   // Handle fetch error (no more questions at this difficulty) → evaluate
   const { mutateAsync: submitMutateAsync, isPending: isEvaluating } = useSubmitTest();
-  const [hasHandledError, setHasHandledError] = useState(false);
+  const hasHandledError = useRef(false);
 
   useEffect(() => {
-    if (!questionQuery.isError || isEvaluating || hasHandledError) return;
-    setHasHandledError(true);
+    if (!questionQuery.isError || isEvaluating || hasHandledError.current) return;
+    hasHandledError.current = true;
 
     const evaluate = async () => {
       const answersRecord = getValues('answers') ?? {};
@@ -60,7 +60,7 @@ export function useQuestionFetch() {
 
         if (result.passed && !isMaxLevel) {
           levelUp();
-          setHasHandledError(false);
+          hasHandledError.current = false;
           // Difficulty changed in context → query key changes → auto refetch
         } else {
           router.push(`/test/${taskId}/results`);

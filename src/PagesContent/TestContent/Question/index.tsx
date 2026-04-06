@@ -14,7 +14,7 @@ import styles from './style.module.scss';
 
 export function Question() {
   const { question, questionNumber, isPending, isError } = useQuestionFetch();
-  const { control, setValue, watch, formState: { isSubmitting } } = useFormContext<TestFormValues>();
+  const { control, setValue, formState: { isSubmitting } } = useFormContext<TestFormValues>();
   const searchParams = useSearchParams();
   const currentPage = Number(searchParams.get('q')) || 1;
 

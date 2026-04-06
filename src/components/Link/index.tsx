@@ -1,5 +1,5 @@
 import NextLink from 'next/link';
-import { AnchorHTMLAttributes, forwardRef, ComponentProps } from 'react';
+import { forwardRef, ComponentProps } from 'react';
 import { cx } from '@/utils/cx';
 import styles from './style.module.scss';
 

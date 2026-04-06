@@ -8,11 +8,7 @@ import { ResultsLoading } from './loading';
 import { ResultsError } from './error';
 import styles from './style.module.scss';
 
-interface ResultsContentProps {
-  taskId: string;
-}
-
-export function ResultsContent({ taskId: _taskId }: ResultsContentProps) {
+export function ResultsContent() {
   const { data: result, isPending, isError } = useGetResult();
 
   if (isPending) {
