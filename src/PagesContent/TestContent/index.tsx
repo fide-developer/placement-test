@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useFormContext } from 'react-hook-form';
 import { TestFormProvider } from './TestFormProvider';
@@ -33,7 +33,12 @@ function TestContentForm({ taskId }: TestContentProps) {
   const { handleSubmit } = useFormContext<TestFormValues>();
   const { mutateAsync } = useSubmitTest();
 
+  const [isProcessing, setIsProcessing] = useState(false);
   const questionNumber = Number(searchParams.get('q')) || 1;
+
+  useEffect(() => {
+    setIsProcessing(false);
+  }, [questionNumber]);
 
   const navigateToQuestion = useCallback(
     (num: number) => {
@@ -46,11 +51,19 @@ function TestContentForm({ taskId }: TestContentProps) {
 
   const onSubmit = useCallback(
     async (data: TestFormValues) => {
-      const allAnswers = Object.values(data.answers ?? {}).filter(
-        (a) => a.questionId && a.answer
-      );
+      if (isProcessing) return;
+      setIsProcessing(true);
 
-      if (questionNumber % EVALUATION_INTERVAL === 0) {
+      try {
+        const allAnswers = Object.values(data.answers ?? {}).filter(
+          (a) => a.questionId && a.answer
+        );
+
+        if (questionNumber % EVALUATION_INTERVAL !== 0) {
+          navigateToQuestion(questionNumber + 1);
+          return;
+        }
+
         const result = await mutateAsync({
           answeredQuestions: allAnswers.map((a) => ({
             questionId: a.questionId,
@@ -59,22 +72,23 @@ function TestContentForm({ taskId }: TestContentProps) {
           difficulty,
         });
 
-        if (result.passed && !isMaxLevel) {
-          levelUp();
-          navigateToQuestion(questionNumber + 1);
-        } else {
+        if (!result.passed || isMaxLevel) {
           router.push(`/test/${taskId}/results`);
+          return;
         }
-      } else {
+
+        levelUp();
         navigateToQuestion(questionNumber + 1);
+      } catch {
+        setIsProcessing(false);
       }
     },
-    [questionNumber, difficulty, isMaxLevel, levelUp, mutateAsync, navigateToQuestion, router, taskId]
+    [isProcessing, questionNumber, difficulty, isMaxLevel, levelUp, mutateAsync, navigateToQuestion, router, taskId]
   );
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <Question />
+      <Question isProcessing={isProcessing} />
     </form>
   );
 }

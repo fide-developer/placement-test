@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useFormContext, Controller } from 'react-hook-form';
 import { useSearchParams } from 'next/navigation';
 import { Typography } from '@/components/Typography';
@@ -12,13 +13,26 @@ import { QuestionError } from './error';
 import { TestFormValues } from '../schema';
 import styles from './style.module.scss';
 
-export function Question() {
+interface QuestionProps {
+  isProcessing: boolean;
+}
+
+export function Question({ isProcessing }: QuestionProps) {
   const { question, questionNumber, isPending, isError } = useQuestionFetch();
-  const { control, setValue, formState: { isSubmitting } } = useFormContext<TestFormValues>();
+  const { control, setValue, getValues } = useFormContext<TestFormValues>();
   const searchParams = useSearchParams();
   const currentPage = Number(searchParams.get('q')) || 1;
+  const needsToEvaluateLevel: boolean = currentPage % 5 === 0
 
-  const loading = isPending || isSubmitting;
+  useEffect(() => {
+    const existing = getValues(`answers.${currentPage}` as `answers.${string}`);
+    if (!existing?.answer) {
+      setValue(`answers.${currentPage}.answer` as `answers.${string}.answer`, '', { shouldValidate: false });
+      setValue(`answers.${currentPage}.questionId` as `answers.${string}.questionId`, '', { shouldValidate: false });
+    }
+  }, [currentPage, getValues, setValue]);
+
+  const loading = isPending || isProcessing;
 
   if (loading && !question) {
     return <QuestionLoading />;
@@ -49,27 +63,33 @@ export function Question() {
       <Controller
         name={`answers.${currentPage}.answer` as `answers.${string}.answer`}
         control={control}
-        render={({ field }) => (
-          <Radio.Group
-            name={field.name}
-            value={field.value ?? ''}
-            onChange={(value: string) => {
-              field.onChange(value);
-              setValue(
-                `answers.${currentPage}.questionId` as `answers.${string}.questionId`,
-                String(question.questionId)
-              );
-            }}
-            direction="vertical"
-          >
-            {question.options.map((option) => (
-              <Radio
-                key={option.answerId}
-                label={option.answerText}
-                value={option.answerId}
-              />
-            ))}
-          </Radio.Group>
+        render={({ field, fieldState }) => (
+          <>
+            <Radio.Group
+              name={field.name}
+              value={field.value ?? ''}
+              error={!!fieldState.error}
+              onChange={(value: string) => {
+                field.onChange(value);
+                setValue(
+                  `answers.${currentPage}.questionId` as `answers.${string}.questionId`,
+                  String(question.questionId)
+                );
+              }}
+              direction="vertical"
+            >
+              {question.options.map((option) => (
+                <Radio
+                  key={option.answerId}
+                  label={option.answerText}
+                  value={option.answerId}
+                />
+              ))}
+            </Radio.Group>
+            <Radio.ErrorMessage>
+              {fieldState.error?.message}
+            </Radio.ErrorMessage>
+          </>
         )}
       />
 
@@ -77,7 +97,7 @@ export function Question() {
         type="submit"
         loading={loading}
       >
-        Next
+        {needsToEvaluateLevel ? "Submit" : "Next"}
       </Button>
     </div>
   );

@@ -6,8 +6,13 @@ export const answerSchema = yup.object({
 });
 
 export const testFormSchema = yup.object({
-  answers: yup.lazy(() =>
-    yup.object().default({})
+  answers: yup.lazy((value) =>
+    yup.object(
+      Object.keys((value as Record<string, unknown>) ?? {}).reduce(
+        (acc, key) => ({ ...acc, [key]: answerSchema }),
+        {} as Record<string, typeof answerSchema>
+      )
+    ).default({})
   ),
 });
 
