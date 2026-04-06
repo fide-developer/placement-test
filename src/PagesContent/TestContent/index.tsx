@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useTransition } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useFormContext } from 'react-hook-form';
 import { TestFormProvider } from './TestFormProvider';
@@ -33,12 +33,8 @@ function TestContentForm({ taskId }: TestContentProps) {
   const { handleSubmit } = useFormContext<TestFormValues>();
   const { mutateAsync } = useSubmitTest();
 
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const questionNumber = Number(searchParams.get('q')) || 1;
-
-  useEffect(() => {
-    setIsProcessing(false);
-  }, [questionNumber]);
 
   const navigateToQuestion = useCallback(
     (num: number) => {
@@ -51,44 +47,45 @@ function TestContentForm({ taskId }: TestContentProps) {
 
   const onSubmit = useCallback(
     async (data: TestFormValues) => {
-      if (isProcessing) return;
-      setIsProcessing(true);
+      if (isPending) return;
 
-      try {
-        const allAnswers = Object.values(data.answers ?? {}).filter(
-          (a) => a.questionId && a.answer
-        );
+      const allAnswers = Object.values(data.answers ?? {}).filter(
+        (a) => a.questionId && a.answer
+      );
 
-        if (questionNumber % EVALUATION_INTERVAL !== 0) {
+      if (questionNumber % EVALUATION_INTERVAL !== 0) {
+        startTransition(() => {
           navigateToQuestion(questionNumber + 1);
-          return;
-        }
-
-        const result = await mutateAsync({
-          answeredQuestions: allAnswers.map((a) => ({
-            questionId: a.questionId,
-            answerId: a.answer,
-          })),
-          difficulty,
         });
-
-        if (!result.passed || isMaxLevel) {
-          router.push(`/test/${taskId}/results`);
-          return;
-        }
-
-        levelUp();
-        navigateToQuestion(questionNumber + 1);
-      } catch {
-        setIsProcessing(false);
+        return;
       }
+
+      const result = await mutateAsync({
+        answeredQuestions: allAnswers.map((a) => ({
+          questionId: a.questionId,
+          answerId: a.answer,
+        })),
+        difficulty,
+      });
+
+      if (!result.passed || isMaxLevel) {
+        startTransition(() => {
+          router.push(`/test/${taskId}/results`);
+        });
+        return;
+      }
+
+      levelUp();
+      startTransition(() => {
+        navigateToQuestion(questionNumber + 1);
+      });
     },
-    [isProcessing, questionNumber, difficulty, isMaxLevel, levelUp, mutateAsync, navigateToQuestion, router, taskId]
+    [isPending, questionNumber, difficulty, isMaxLevel, levelUp, mutateAsync, navigateToQuestion, router, taskId, startTransition]
   );
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <Question isProcessing={isProcessing} />
+      <Question isProcessing={isPending} />
     </form>
   );
 }
