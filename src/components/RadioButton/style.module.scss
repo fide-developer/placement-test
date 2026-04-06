@@ -1,0 +1,109 @@
+.group {
+  display: flex;
+  border: none;
+  padding: 0;
+  margin: 0;
+  gap: var(--spacing-sm);
+}
+
+.vertical {
+  flex-direction: column;
+}
+
+.horizontal {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.legend {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--foreground);
+  margin-bottom: var(--spacing-sm);
+}
+
+.radioButton {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: var(--border-width-thin) solid var(--border-color);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: border-color 0.2s, background-color 0.2s;
+
+  &:hover:not(.disabled) {
+    border-color: var(--color-primary);
+    background-color: var(--color-primary-light);
+  }
+}
+
+.checked {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-light);
+}
+
+.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.indicator {
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 1px;
+  border: var(--border-width-medium) solid var(--border-color-strong);
+  border-radius: var(--radius-full);
+  transition: border-color 0.2s;
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    width: 0.625rem;
+    height: 0.625rem;
+    border-radius: var(--radius-full);
+    background-color: var(--color-primary);
+    transition: transform 0.2s;
+  }
+
+  .checked & {
+    border-color: var(--color-primary);
+
+    &::after {
+      transform: translate(-50%, -50%) scale(1);
+    }
+  }
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.label {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  color: var(--foreground);
+  line-height: var(--line-height-normal);
+}
+
+.description {
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-500);
+  line-height: var(--line-height-normal);
+}
