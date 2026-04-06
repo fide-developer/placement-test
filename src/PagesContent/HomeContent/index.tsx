@@ -5,12 +5,15 @@ import { Typography } from '@/components/Typography';
 import { Button } from '@/components/Button';
 import { useStartTest } from '@/api/test/start-test';
 import styles from './style.module.scss';
+import { useState } from 'react';
 
 export function HomeContent() {
   const router = useRouter();
-  const { mutate, isPending } = useStartTest();
+  const { mutate } = useStartTest();
+  const [isStartingTest, setIsStartingTest] = useState(false)
 
   const handleStart = () => {
+    setIsStartingTest(true)
     mutate(undefined, {
       onSuccess: (data) => {
         router.push(`/test/${data.sessionId}`);
@@ -27,7 +30,7 @@ export function HomeContent() {
         Discover your English proficiency level in just a few minutes.
         Answer a series of questions and get your results instantly.
       </Typography>
-      <Button size="lg" onClick={handleStart} loading={isPending} className={styles.cta}>
+      <Button size="lg" onClick={handleStart} loading={isStartingTest} className={styles.cta}>
         Start the Test
       </Button>
     </section>
