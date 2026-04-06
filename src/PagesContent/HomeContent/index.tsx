@@ -10,7 +10,7 @@ import { useState } from 'react';
 export function HomeContent() {
   const router = useRouter();
   const { mutate } = useStartTest();
-  const [isStartingTest, setIsStartingTest] = useState(false)
+  const [isStartingTest, setIsStartingTest] = useState<boolean>(false)
 
   const handleStart = () => {
     setIsStartingTest(true)

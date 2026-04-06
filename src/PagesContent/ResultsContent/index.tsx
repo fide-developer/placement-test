@@ -10,13 +10,16 @@ import { useStartTest } from '@/api/test/start-test';
 import { ResultsLoading } from './loading';
 import { ResultsError } from './error';
 import styles from './style.module.scss';
+import { useState } from 'react';
 
 export function ResultsContent() {
   const router = useRouter();
   const { data: result, isPending, isError } = useGetResult();
-  const { mutate: startTest, isPending: isStarting } = useStartTest();
+  const { mutate: startTest } = useStartTest();
+  const [isStartingNewTest, setIsStartingNewTest] = useState<boolean>(false)
 
   const handleRetry = () => {
+    setIsStartingNewTest(true)
     startTest(undefined, {
       onSuccess: (data) => {
         router.push(`/test/${data.sessionId}`);
@@ -67,7 +70,7 @@ export function ResultsContent() {
         </div>
       </Card>
 
-      <Button size="lg" onClick={handleRetry} loading={isStarting} className={styles.cta}>
+      <Button size="lg" onClick={handleRetry} loading={isStartingNewTest} className={styles.cta}>
         Retry Test
       </Button>
     </div>
