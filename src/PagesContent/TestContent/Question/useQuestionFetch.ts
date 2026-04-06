@@ -19,7 +19,7 @@ export function useQuestionFetch() {
   const questionNumber = Number(searchParams.get('q')) || 1;
 
   const questionQuery = useQuery({
-    queryKey: ['question', questionNumber, difficulty],
+    queryKey: ['question', taskId, questionNumber, difficulty],
     queryFn: () => {
       const answersRecord = getValues('answers') ?? {};
       const currentAnswers = Object.values(answersRecord).filter(
