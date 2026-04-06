@@ -49,6 +49,14 @@
   cursor: not-allowed;
 }
 
+.error {
+  border-color: var(--color-error);
+
+  .indicator {
+    border-color: var(--color-error);
+  }
+}
+
 .input {
   position: absolute;
   opacity: 0;
@@ -106,4 +114,11 @@
   font-size: var(--font-size-sm);
   color: var(--color-gray-500);
   line-height: var(--line-height-normal);
+}
+
+.errorMessage {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-sm);
+  color: var(--color-error);
+  margin-top: var(--spacing-xs);
 }
