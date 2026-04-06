@@ -1,0 +1,19 @@
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-2xl) var(--spacing-lg);
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.subtitle {
+  max-width: 480px;
+}
+
+.cta {
+  margin-top: var(--spacing-sm);
+}
