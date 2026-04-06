@@ -1,37 +1,15 @@
-'use client';
-
-import { useRouter } from 'next/navigation';
 import { Typography } from '@/components/Typography';
 import { Card } from '@/components/Card';
 import { Badge } from '@/components/Badge';
-import { Button } from '@/components/Button';
-import { useGetResult } from '@/api/test/get-result';
-import { useStartTest } from '@/api/test/start-test';
-import { ResultsLoading } from './loading';
-import { ResultsError } from './error';
+import { RetryButton } from './RetryButton';
+import type { TestResult } from '@/api/test/get-result';
 import styles from './style.module.scss';
 
-export function ResultsContent() {
-  const router = useRouter();
-  const { data: result, isPending, isError } = useGetResult();
-  const { mutate: startTest, isPending: isStarting } = useStartTest();
+interface ResultsContentProps {
+  result: TestResult;
+}
 
-  const handleRetry = () => {
-    startTest(undefined, {
-      onSuccess: (data) => {
-        router.push(`/test/${data.sessionId}`);
-      },
-    });
-  };
-
-  if (isPending) {
-    return <ResultsLoading />;
-  }
-
-  if (isError || !result) {
-    return <ResultsError />;
-  }
-
+export function ResultsContent({ result }: ResultsContentProps) {
   return (
     <div className={styles.container}>
       <Typography variant="h3">Your Results</Typography>
@@ -67,9 +45,7 @@ export function ResultsContent() {
         </div>
       </Card>
 
-      <Button size="lg" onClick={handleRetry} loading={isStarting} className={styles.cta}>
-        Retry Test
-      </Button>
+      <RetryButton />
     </div>
   );
 }
