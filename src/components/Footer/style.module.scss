@@ -1,0 +1,28 @@
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  margin-top: auto;
+  border-top: var(--border-width-thin) solid var(--border-color);
+}
+
+.icons {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.iconLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-xl);
+  color: var(--color-gray-500);
+  transition: color 0.2s;
+
+  &:hover {
+    color: var(--foreground);
+  }
+}
